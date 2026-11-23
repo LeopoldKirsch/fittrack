@@ -1,0 +1,93 @@
+// Built-in exercise library. type: strength | cardio. met = metabolic equivalent used for
+// calorie estimates. stepBased cardio is already partly counted by the step counter.
+
+const S = (id, name, group) => ({ id: 'ex-' + id, name, type: 'strength', group, met: 5 });
+const C = (id, name, met, stepBased = false, spk = 0) => ({ id: 'ex-' + id, name, type: 'cardio', group: 'Cardio', met, stepBased, stepsPerKm: spk });
+
+export const EXERCISES = [
+  // Chest
+  S('bench', 'Bench Press (Barbell)', 'Chest'),
+  S('bench-db', 'Bench Press (Dumbbell)', 'Chest'),
+  S('incline-bench', 'Incline Bench Press (Barbell)', 'Chest'),
+  S('incline-db', 'Incline Press (Dumbbell)', 'Chest'),
+  S('chest-fly', 'Chest Fly (Dumbbell)', 'Chest'),
+  S('cable-fly', 'Cable Crossover', 'Chest'),
+  S('pec-deck', 'Pec Deck', 'Chest'),
+  S('chest-press', 'Chest Press (Machine)', 'Chest'),
+  S('pushup', 'Push-up', 'Chest'),
+  S('dips', 'Dips', 'Chest'),
+  // Back
+  S('deadlift', 'Deadlift', 'Back'),
+  S('pullup', 'Pull-up', 'Back'),
+  S('chinup', 'Chin-up', 'Back'),
+  S('lat-pulldown', 'Lat Pulldown', 'Back'),
+  S('row-bb', 'Bent-over Row (Barbell)', 'Back'),
+  S('row-db', 'One-arm Row (Dumbbell)', 'Back'),
+  S('row-cable', 'Seated Cable Row', 'Back'),
+  S('tbar-row', 'T-bar Row', 'Back'),
+  S('row-machine', 'Row (Machine)', 'Back'),
+  S('face-pull', 'Face Pull', 'Back'),
+  S('back-ext', 'Back Extension', 'Back'),
+  S('shrug', 'Shrug', 'Back'),
+  // Shoulders
+  S('ohp', 'Overhead Press (Barbell)', 'Shoulders'),
+  S('ohp-db', 'Shoulder Press (Dumbbell)', 'Shoulders'),
+  S('shoulder-machine', 'Shoulder Press (Machine)', 'Shoulders'),
+  S('lateral-raise', 'Lateral Raise', 'Shoulders'),
+  S('cable-lateral', 'Cable Lateral Raise', 'Shoulders'),
+  S('rear-delt', 'Rear Delt Fly', 'Shoulders'),
+  S('front-raise', 'Front Raise', 'Shoulders'),
+  S('upright-row', 'Upright Row', 'Shoulders'),
+  // Arms
+  S('curl-bb', 'Bicep Curl (Barbell)', 'Arms'),
+  S('curl-db', 'Bicep Curl (Dumbbell)', 'Arms'),
+  S('hammer', 'Hammer Curl', 'Arms'),
+  S('preacher', 'Preacher Curl', 'Arms'),
+  S('curl-cable', 'Cable Curl', 'Arms'),
+  S('pushdown', 'Triceps Pushdown', 'Arms'),
+  S('skull', 'Skull Crusher', 'Arms'),
+  S('oh-ext', 'Overhead Triceps Extension', 'Arms'),
+  S('cgbp', 'Close-grip Bench Press', 'Arms'),
+  // Legs
+  S('squat', 'Squat (Barbell)', 'Legs'),
+  S('front-squat', 'Front Squat', 'Legs'),
+  S('goblet', 'Goblet Squat', 'Legs'),
+  S('leg-press', 'Leg Press', 'Legs'),
+  S('hack-squat', 'Hack Squat', 'Legs'),
+  S('rdl', 'Romanian Deadlift', 'Legs'),
+  S('lunge', 'Lunge', 'Legs'),
+  S('bss', 'Bulgarian Split Squat', 'Legs'),
+  S('leg-ext', 'Leg Extension', 'Legs'),
+  S('leg-curl', 'Leg Curl', 'Legs'),
+  S('hip-thrust', 'Hip Thrust', 'Legs'),
+  S('calf', 'Calf Raise', 'Legs'),
+  S('adductor', 'Hip Adductor', 'Legs'),
+  S('abductor', 'Hip Abductor', 'Legs'),
+  // Core
+  S('plank', 'Plank (reps = seconds)', 'Core'),
+  S('crunch', 'Crunch', 'Core'),
+  S('leg-raise', 'Hanging Leg Raise', 'Core'),
+  S('cable-crunch', 'Cable Crunch', 'Core'),
+  S('russian', 'Russian Twist', 'Core'),
+  S('ab-wheel', 'Ab Wheel', 'Core'),
+  // Cardio
+  C('run', 'Running', 9.8, true, 1300),
+  C('treadmill', 'Treadmill', 8.5, true, 1300),
+  C('walk', 'Walking', 3.5, true, 1350),
+  C('hike', 'Hiking', 6, true, 1500),
+  C('cycle', 'Cycling', 7.5),
+  C('bike', 'Stationary Bike', 6.8),
+  C('row', 'Rowing Machine', 7),
+  C('elliptical', 'Elliptical', 5),
+  C('stairs', 'Stair Climber', 9, true, 0),
+  C('swim', 'Swimming', 8),
+  C('hiit', 'HIIT', 8),
+  C('rope', 'Jump Rope', 11),
+  C('boxing', 'Boxing', 7.8),
+  C('football', 'Football', 7, true, 0),
+  C('tennis', 'Tennis', 7.3, true, 0),
+  C('basket', 'Basketball', 6.5, true, 0),
+  C('yoga', 'Yoga', 2.8),
+];
+
+export const GROUPS = ['Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Core', 'Cardio', 'Other'];
