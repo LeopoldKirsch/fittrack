@@ -1,4 +1,4 @@
-# FitTrack
+# Discipline
 
 Personal training, nutrition and body tracker. It's a web app (PWA): install it on your
 iPhone home screen, use it on your laptop, and it works offline. Data syncs through your

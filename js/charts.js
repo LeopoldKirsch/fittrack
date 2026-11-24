@@ -51,29 +51,63 @@ export function lineChart(el, points, { unit = '', decimals = 1, trend = false }
   const last = points[points.length - 1];
   el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" class="chart" role="img"
       aria-label="Chart, latest ${esc(round(last.y, decimals) + ' ' + unit)}">
-    <defs><linearGradient id="g-area" x1="0" x2="0" y1="0" y2="1">
-      <stop offset="0" stop-color="var(--accent)" stop-opacity=".28"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/>
-    </linearGradient></defs>
-    ${grid.join('')}${xl}
+    <defs>
+      <linearGradient id="g-area" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stop-color="#cbcbcb" stop-opacity=".16"/><stop offset="1" stop-color="#cbcbcb" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="g-line" gradientUnits="userSpaceOnUse" x1="${pad.l}" x2="${W - pad.r}" y1="0" y2="0">
+        <stop offset="0" stop-color="#979797"/><stop offset="1" stop-color="#f3f3f3"/>
+      </linearGradient>
+    </defs>
+    ${grid.join('')}<line x1="${pad.l}" x2="${W - pad.r}" y1="${H - pad.b}" y2="${H - pad.b}" class="baseline"/>${xl}
     <path d="${area}" fill="url(#g-area)"/>
     <path d="${path}" class="line ${trend ? 'faint' : ''}"/>
     ${trendPath}${dots}
   </svg>`;
 }
 
-/** Progress ring. value/target, label in the middle. */
-export function ring(value, target, { size = 132, stroke = 11, center = '', sub = '' } = {}) {
+/**
+ * Calorie ring. Under target: gray→white gradient arc. Over target the ring keeps going:
+ * completed laps stay drawn, the extra calories run on in soft red (1.5× = one and a half
+ * turns), and a soft shadow just past the tip shows where the current lap ends.
+ */
+export function ring(value, target, { size = 136, stroke = 12, center = '', sub = '' } = {}) {
+  const cx = size / 2;
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
-  const frac = target > 0 ? value / target : 0;
+  const frac = target > 0 ? Math.max(0, value / target) : 0;
   const over = frac > 1;
-  const shown = Math.min(1, frac);
-  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="ring ${over ? 'over' : ''}">
-    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" class="ring-bg" stroke-width="${stroke}" fill="none"/>
-    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" class="ring-fg" stroke-width="${stroke}" fill="none"
-      stroke-dasharray="${(c * shown).toFixed(1)} ${c.toFixed(1)}" stroke-linecap="round"
-      transform="rotate(-90 ${size / 2} ${size / 2})"/>
-    <text x="50%" y="47%" text-anchor="middle" class="ring-num">${esc(center)}</text>
-    <text x="50%" y="63%" text-anchor="middle" class="ring-sub">${esc(sub)}</text>
+  const RED = '#e4776f';
+  // arc from `start` (fraction of a turn, 0 = top) of length `len`, clockwise
+  const arc = (start, len, stroke2, extra = '') =>
+    `<circle cx="${cx}" cy="${cx}" r="${r}" fill="none" stroke="${stroke2}" stroke-width="${stroke}"
+      stroke-dasharray="${(c * Math.min(len, 1)).toFixed(2)} ${(c + 1).toFixed(2)}"
+      transform="rotate(${(-90 + start * 360).toFixed(2)} ${cx} ${cx})" ${extra}/>`;
+
+  let body = `<circle cx="${cx}" cy="${cx}" r="${r}" class="ring-bg" stroke-width="${stroke}" fill="none"/>`;
+  if (!over) {
+    if (frac > 0) body += arc(0, frac, 'url(#g-ring)', 'stroke-linecap="round"');
+  } else {
+    const laps = Math.floor(frac);
+    let rem = frac - laps;
+    // the lap underneath: first lap is the normal gradient, later laps are red
+    body += arc(0, 1, laps >= 2 ? '#a9564f' : 'url(#g-ring)');
+    if (rem < 0.002) rem = 0.002; // exactly on a lap boundary: still show the tip
+    // shade just after the tip, fading out, drawn on the lap underneath
+    // overlapping translucent arcs that start at the tip and get shorter → smooth fade-out
+    const steps = 18, span = 0.085;
+    for (let i = 1; i <= steps; i++) {
+      body += arc(rem, (span * i) / steps, 'rgba(0,0,0,0.075)');
+    }
+    body += arc(0, rem, RED, 'stroke-linecap="round"');
+  }
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="ring ${over ? 'over' : ''}" role="img"
+      aria-label="${esc(Math.round(frac * 100) + '% of daily calories')}">
+    <defs><linearGradient id="g-ring" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#979797"/><stop offset="1" stop-color="#f3f3f3"/>
+    </linearGradient></defs>
+    ${body}
+    <text x="50%" y="48%" text-anchor="middle" class="ring-num">${esc(center)}</text>
+    <text x="50%" y="62%" text-anchor="middle" class="ring-sub">${esc(sub)}</text>
   </svg>`;
 }

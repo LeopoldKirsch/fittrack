@@ -42,7 +42,7 @@ export function render(el) {
       ${p._set ? '' : `<button class="notice" data-act="profile">Set up your profile to get personalised targets ${icon('chevR')}</button>`}
       <div class="sum-top">
         <div class="sum-side"><div class="big">${fmtNum(tot.kcal)}</div><div class="muted small">eaten</div></div>
-        ${ring(tot.kcal, t.kcal, { center: fmtNum(Math.abs(left)), sub: left >= 0 ? 'kcal left' : 'kcal over' })}
+        ${ring(tot.kcal, t.kcal, { center: (left < 0 ? '+' : '') + fmtNum(Math.abs(left)), sub: left >= 0 ? 'kcal left' : 'kcal over' })}
         <div class="sum-side"><div class="big">${fmtNum(out.total)}</div><div class="muted small">burned</div></div>
       </div>
       <div class="macros">

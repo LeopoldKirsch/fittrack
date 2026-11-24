@@ -1,6 +1,6 @@
 // Service worker: makes the app load instantly and work offline.
 // Bump VERSION on every deploy.
-const VERSION = 'fittrack-v1.0.4';
+const VERSION = 'fittrack-v1.1.0';
 const SHELL = [
   './',
   './index.html',
@@ -60,8 +60,8 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Pinned CDN libraries (Supabase client, barcode scanner): cache forever.
-  if (url.hostname === 'cdn.jsdelivr.net') {
+  // Pinned CDN libraries (Supabase client, barcode scanner) and the Inter font: cache forever.
+  if (['cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com'].includes(url.hostname)) {
     e.respondWith(
       caches.open('fittrack-cdn').then(async (cache) => {
         const cached = await cache.match(req);

@@ -98,7 +98,7 @@ export const store = {
     ),
   importAll(json) {
     const obj = JSON.parse(json);
-    if (!Array.isArray(obj.records)) throw new Error('Not a FitTrack backup file');
+    if (!Array.isArray(obj.records)) throw new Error('Not a Discipline backup file');
     let n = 0;
     for (const r of obj.records) {
       if (!r.id || !r.kind) continue;

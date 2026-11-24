@@ -31,6 +31,15 @@ function render() {
   const y = window.scrollY;
   view.onclick = view.oninput = view.onchange = view.onkeydown = null;
   route.render(view, ...params);
+  // small uppercase date above main page titles ("TUESDAY · NOV 24")
+  const head = view.querySelector('.page-head:not(.sticky)');
+  if (head) {
+    const d = new Date();
+    const eb = document.createElement('div');
+    eb.className = 'eyebrow';
+    eb.textContent = `${d.toLocaleDateString('en-GB', { weekday: 'long' })} · ${d.toLocaleDateString('en-US', { month: 'short' })} ${d.getDate()}`;
+    head.before(eb);
+  }
   $$('#tabs [data-tab]').forEach((b) => b.classList.toggle('on', b.dataset.tab === route.tab));
   document.body.dataset.route = name;
   if (key !== lastRoute) window.scrollTo(0, 0);

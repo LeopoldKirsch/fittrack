@@ -83,7 +83,7 @@ export function render(el) {
       </div>
       <button class="btn danger ghost block mt" data-act="wipe">Delete all data on this device</button>
     </section>
-    <p class="muted small center">FitTrack v1 · works offline · data in your own Supabase project</p>
+    <p class="muted small center">Discipline · works offline · data in your own Supabase project</p>
   `;
 
   el.onclick = async (e) => {
@@ -153,7 +153,7 @@ export function render(el) {
           stepToken = await sync.getStepToken(true);
           return refresh();
         case 'export':
-          return download(`fittrack-backup-${todayStr()}.json`, store.exportAll());
+          return download(`discipline-backup-${todayStr()}.json`, store.exportAll());
         case 'wipe':
           if (await confirmSheet('Delete ALL data stored on this device? Data already synced to your account stays in Supabase.', { ok: 'Delete everything', danger: true })) {
             store.clearAll();
