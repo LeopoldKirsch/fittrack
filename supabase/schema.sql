@@ -44,8 +44,10 @@ create policy "own token" on public.step_tokens
   using (user_id = auth.uid())
   with check (user_id = auth.uid());
 
--- 3) Endpoint called by the Shortcut: POST /rest/v1/rpc/log_steps {p_token, p_date, p_steps}
-create or replace function public.log_steps(p_token text, p_date date, p_steps integer)
+-- 3) Endpoint called by the Shortcut: POST /rest/v1/rpc/log_steps {p_token, p_steps[, p_date]}
+--    p_date is optional (YYYY-MM-DD); if missing or unreadable, today's date in Paris time is used.
+drop function if exists public.log_steps(text, date, integer);
+create or replace function public.log_steps(p_token text, p_steps numeric, p_date text default null)
 returns text
 language plpgsql
 security definer
@@ -53,21 +55,32 @@ set search_path = public
 as $$
 declare
   uid uuid;
+  d date;
+  n integer;
 begin
-  select user_id into uid from public.step_tokens where token = p_token;
+  select user_id into uid from public.step_tokens where token = trim(p_token);
   if uid is null then
     raise exception 'invalid token';
   end if;
-  if p_steps is null or p_steps < 0 or p_steps > 200000 then
+  n := round(p_steps);
+  if n is null or n < 0 or n > 200000 then
     raise exception 'invalid step count';
   end if;
+  begin
+    d := nullif(trim(p_date), '')::date;
+  exception when others then
+    d := null;
+  end;
+  if d is null then
+    d := (now() at time zone 'Europe/Paris')::date;
+  end if;
   insert into public.records (user_id, id, kind, data, updated_at, deleted)
-  values (uid, 'steps-' || p_date::text, 'steps',
-          jsonb_build_object('date', p_date::text, 'steps', p_steps, 'source', 'health'), now(), false)
+  values (uid, 'steps-' || d::text, 'steps',
+          jsonb_build_object('date', d::text, 'steps', n, 'source', 'health'), now(), false)
   on conflict (user_id, id) do update
     set data = excluded.data, updated_at = now(), deleted = false;
-  return 'ok: ' || p_steps || ' steps on ' || p_date;
+  return 'ok: ' || n || ' steps on ' || d;
 end $$;
 
-revoke all on function public.log_steps(text, date, integer) from public;
-grant execute on function public.log_steps(text, date, integer) to anon, authenticated;
+revoke all on function public.log_steps(text, numeric, text) from public;
+grant execute on function public.log_steps(text, numeric, text) to anon, authenticated;

@@ -208,11 +208,12 @@ function shortcutGuide(cfg, token) {
       <li>Open the <b>Shortcuts</b> app → <b>Automation</b> tab → <b>+</b> → <b>Time of Day</b>. Pick <b>23:30</b>, <b>Daily</b>, choose <b>Run Immediately</b>, then <b>New Blank Automation</b>.</li>
       <li>Add the action <b>Find Health Samples</b>: Type = <b>Steps</b>, add the filter <b>Start Date is Today</b>.</li>
       <li>Add <b>Calculate Statistics</b>: Operation = <b>Sum</b>, input = <i>Health Samples</i>.</li>
-      <li>Add <b>Format Date</b>: Date = <i>Current Date</i>, Date Format = <b>Custom</b> → <code>yyyy-MM-dd</code>.</li>
-      <li>Add <b>Get Contents of URL</b> with the URL below. Tap <b>Show More</b>: Method = <b>POST</b>.
-        Headers: <code>apikey</code> = the key below. Request Body = <b>JSON</b> with 3 fields:
-        <code>p_token</code> (Text) = your token, <code>p_date</code> (Text) = <i>Formatted Date</i>, <code>p_steps</code> (Number) = <i>Statistics Result</i>.</li>
-      <li>Tap ▶︎ once to test it and allow Health access. Steps appear here within a minute. Tip: add the same automation at 13:00 and 19:00 for updates during the day.</li>
+      <li>Add <b>Get Contents of URL</b> with the URL below. Expand it: Method = <b>POST</b>.
+        Headers: <code>apikey</code> = the key below. Request Body = <b>JSON</b> with 2 fields:
+        <code>p_token</code> (Text) = your token, <code>p_steps</code> (Number) = the blue <i>Statistics Result</i> variable (tap the field → Select Variable).
+        The date is filled in automatically (today, Paris time).</li>
+      <li>Tap ▶︎ once to test it and allow Health access. The response should read <code>ok: … steps on …</code>.
+        Tip: iPhone hides Health data while locked, so also add an automation <b>App → Is Opened</b> (an app you open often) that runs the same actions.</li>
     </ol>
     ${copyRow('URL', url)}
     ${copyRow('Header apikey', cfg.key)}
