@@ -150,7 +150,6 @@ export function promptSheet(title, { label = '', value = '', placeholder = '', o
         <button class="btn primary block mt" data-ok>${esc(ok)}</button>`,
       mount(el) {
         const inp = el.querySelector('#prompt-in');
-        setTimeout(() => inp.focus(), 250);
         const submit = () => {
           done = true;
           s.close();
@@ -163,6 +162,32 @@ export function promptSheet(title, { label = '', value = '', placeholder = '', o
     });
   });
 }
+
+/**
+ * Select an input's content when the user taps it, so a new value can be typed straight away.
+ * (Never focus inputs programmatically: on iPhone that leaves the field "focused" without a
+ * keyboard, and the user's tap then can't open it.)
+ */
+export function selectOnFocus(inp) {
+  inp.addEventListener('focus', () => setTimeout(() => {
+    try { inp.setSelectionRange(0, inp.value.length); } catch { inp.select(); }
+  }, 0));
+}
+
+// Keep sheets above the on-screen keyboard (iOS doesn't resize fixed elements for it).
+if (window.visualViewport) {
+  const vv = window.visualViewport;
+  const upd = () => {
+    const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    document.documentElement.style.setProperty('--kb', (kb > 80 ? kb : 0) + 'px');
+  };
+  vv.addEventListener('resize', upd);
+  vv.addEventListener('scroll', upd);
+}
+document.addEventListener('focusin', (e) => {
+  const t = e.target;
+  if (t.matches?.('input, textarea') && t.closest('.sheet')) setTimeout(() => t.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300);
+});
 
 export async function copyText(t) {
   try {

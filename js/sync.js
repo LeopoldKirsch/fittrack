@@ -194,9 +194,29 @@ export async function getStepToken(create = false) {
   return token;
 }
 
+// Name of the iOS Shortcut that posts steps; the app can launch it on demand.
+const SC_KEY = 'ft.shortcutName';
+export const getShortcutName = () => localStorage.getItem(SC_KEY) || 'Send Steps';
+export const setShortcutName = (n) => localStorage.setItem(SC_KEY, (n || '').trim() || 'Send Steps');
+
+let expectUntil = 0;
+/** Opens the Shortcuts app on the steps shortcut; pulls fresh data when the user comes back. */
+export function runStepsShortcut() {
+  expectUntil = Date.now() + 2 * 60 * 1000;
+  location.href = 'shortcuts://run-shortcut?name=' + encodeURIComponent(getShortcutName());
+}
+
 export function startAutoSync() {
   store.on((src) => src === 'local' && syncSoon());
-  document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && syncSoon(200));
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    syncSoon(200);
+    if (Date.now() < expectUntil) {
+      // the Shortcut may still be posting: pull again a few seconds later
+      setTimeout(syncNow, 3000);
+      setTimeout(syncNow, 8000);
+    }
+  });
   window.addEventListener('online', () => syncSoon(200));
   setInterval(() => document.visibilityState === 'visible' && syncSoon(0), 5 * 60 * 1000);
   if (getConfig()) getClient().then(() => syncSoon(0)).catch(() => {});

@@ -9,8 +9,9 @@ import { scanBarcode } from '../scanner.js';
 import { ring } from '../charts.js';
 import {
   esc, icon, todayStr, addDays, fmtDate, relDay, num, round, fmtNum,
-  openSheet, confirmSheet, promptSheet, toast, go, refresh,
+  openSheet, confirmSheet, promptSheet, toast, go, refresh, selectOnFocus,
 } from '../ui.js';
+import { runStepsShortcut } from '../sync.js';
 
 let day = todayStr();
 const mealLabel = (id) => MEALS.find((m) => m.id === id)?.label || id;
@@ -391,7 +392,7 @@ function wireQty(el, food, { onBack, onOk, onDelete }) {
       <div><b>${fmtNum(m.c, 1)}</b><span>carbs</span></div><div><b>${fmtNum(m.f, 1)}</b><span>fat</span></div>`;
   };
   upd();
-  setTimeout(() => inp.select(), 300);
+  selectOnFocus(inp);
   el.oninput = (e) => e.target === inp && upd();
   el.onkeydown = (e) => e.target === inp && e.key === 'Enter' && submit();
   const submit = () => {
@@ -496,6 +497,7 @@ function energySheet() {
 
       <h3 class="mt-lg">Steps</h3>
       <p class="muted small">Synced automatically from Apple Health once the Shortcut is set up (Profile tab → Apple Health steps). You can also enter them here.</p>
+      ${day === todayStr() ? `<button class="btn accent block mb" data-a="run-shortcut">${icon('steps')} Sync steps now from Apple Health</button>` : ''}
       <div class="row gap"><input id="steps-in" inputmode="numeric" class="grow" placeholder="Steps" value="${o.steps ?? ''}"><button class="btn" data-a="steps">Save</button></div>
 
       <h3 class="mt-lg">Override total</h3>
@@ -505,6 +507,10 @@ function energySheet() {
     mount(el) {
       el.onclick = (e) => {
         const a = e.target.closest('[data-a]')?.dataset.a;
+        if (a === 'run-shortcut') {
+          s.close();
+          return runStepsShortcut();
+        }
         if (a === 'steps') {
           const v = el.querySelector('#steps-in').value.trim();
           if (v === '') store.remove('steps-' + day);

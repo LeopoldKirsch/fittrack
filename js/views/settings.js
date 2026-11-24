@@ -68,6 +68,9 @@ export function render(el) {
       ${!st.signedIn ? `<p class="muted small">Sign in first. Steps are sent by an iPhone Shortcut to your account, then show up on every device.</p>` : `
         <p class="muted small">Web apps can't read Apple Health directly, so a Shortcut on your iPhone sends today's step count to your account automatically.</p>
         ${steps ? `<div class="kv"><span>Last received</span><b>${fmtNum(steps.steps)} steps (${esc(steps.date)})</b></div>` : ''}
+        <label class="field"><span>Your shortcut's exact name (used by the “Sync steps now” button)</span>
+          <input id="sc-name" value="${esc(sync.getShortcutName())}" autocapitalize="off" autocomplete="off"></label>
+        <button class="btn accent block mt" data-act="run-shortcut">${icon('steps')} Sync steps now</button>
         ${stepToken ? shortcutGuide(cfg, stepToken) : `<button class="btn block" data-act="token">Show Shortcut setup</button>`}`}
     </section>
 
@@ -143,6 +146,9 @@ export function render(el) {
         case 'sync':
           await sync.syncNow();
           return refresh();
+        case 'run-shortcut':
+          sync.setShortcutName(el.querySelector('#sc-name').value);
+          return sync.runStepsShortcut();
         case 'token':
           stepToken = await sync.getStepToken(true);
           return refresh();
@@ -165,6 +171,10 @@ export function render(el) {
   };
 
   el.onchange = async (e) => {
+    if (e.target.id === 'sc-name') {
+      sync.setShortcutName(e.target.value);
+      return toast('Shortcut name saved');
+    }
     if (e.target.id !== 'import' || !e.target.files[0]) return;
     try {
       const n = store.importAll(await e.target.files[0].text());
@@ -205,7 +215,7 @@ function shortcutGuide(cfg, token) {
   const url = `${cfg.url}/rest/v1/rpc/log_steps`;
   return `
     <ol class="steps-guide">
-      <li>Open the <b>Shortcuts</b> app → <b>Automation</b> tab → <b>+</b> → <b>Time of Day</b>. Pick <b>23:30</b>, <b>Daily</b>, choose <b>Run Immediately</b>, then <b>New Blank Automation</b>.</li>
+      <li>Open the <b>Shortcuts</b> app → <b>Shortcuts</b> tab → <b>+</b>, and name the shortcut <b>Send Steps</b>.</li>
       <li>Add the action <b>Find Health Samples</b>: Type = <b>Steps</b>, add the filter <b>Start Date is Today</b>.</li>
       <li>Add <b>Calculate Statistics</b>: Operation = <b>Sum</b>, input = <i>Health Samples</i>.</li>
       <li>Add <b>Get Contents of URL</b> with the URL below. Expand it: Method = <b>POST</b>.
@@ -213,7 +223,9 @@ function shortcutGuide(cfg, token) {
         <code>p_token</code> (Text) = your token, <code>p_steps</code> (Number) = the blue <i>Statistics Result</i> variable (tap the field → Select Variable).
         The date is filled in automatically (today, Paris time).</li>
       <li>Tap ▶︎ once to test it and allow Health access. The response should read <code>ok: … steps on …</code>.
-        Tip: iPhone hides Health data while locked, so also add an automation <b>App → Is Opened</b> (an app you open often) that runs the same actions.</li>
+</li>
+      <li><b>Automation</b> tab → <b>+</b>: create <b>Time of Day</b> (e.g. 21:30, Daily) and <b>App → Is Opened</b> (an app you open often), both <b>Run Immediately</b> → run <b>Send Steps</b>.
+        iPhone hides Health data while locked, which is why the “app opened” trigger matters. The button above runs it on demand.</li>
     </ol>
     ${copyRow('URL', url)}
     ${copyRow('Header apikey', cfg.key)}
