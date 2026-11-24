@@ -519,7 +519,7 @@ export function pickExercise() {
               .join('') || `<p class="empty">No match. Create it as a custom exercise below.</p>`;
           };
           draw('');
-          el.oninput = (e) => e.target.id === 'ex-q' && draw(e.target.value);
+          el.oninput = (e) => { if (e.target.id === 'ex-q') draw(e.target.value); };
           el.onclick = (e) => {
             const b = e.target.closest('[data-id]');
             if (b) {

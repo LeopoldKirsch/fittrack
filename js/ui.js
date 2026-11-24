@@ -155,8 +155,8 @@ export function promptSheet(title, { label = '', value = '', placeholder = '', o
           s.close();
           resolve(inp.value.trim() || null);
         };
-        el.onclick = (e) => e.target.closest('[data-ok]') && submit();
-        el.onkeydown = (e) => e.key === 'Enter' && submit();
+        el.onclick = (e) => { if (e.target.closest('[data-ok]')) submit(); };
+        el.onkeydown = (e) => { if (e.key === 'Enter') submit(); };
       },
       onClose: () => !done && resolve(null),
     });

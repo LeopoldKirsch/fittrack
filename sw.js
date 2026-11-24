@@ -1,6 +1,6 @@
 // Service worker: makes the app load instantly and work offline.
 // Bump VERSION on every deploy.
-const VERSION = 'fittrack-v1.0.3';
+const VERSION = 'fittrack-v1.0.4';
 const SHELL = [
   './',
   './index.html',

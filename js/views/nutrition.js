@@ -393,8 +393,8 @@ function wireQty(el, food, { onBack, onOk, onDelete }) {
   };
   upd();
   selectOnFocus(inp);
-  el.oninput = (e) => e.target === inp && upd();
-  el.onkeydown = (e) => e.target === inp && e.key === 'Enter' && submit();
+  el.oninput = (e) => { if (e.target === inp) upd(); };
+  el.onkeydown = (e) => { if (e.target === inp && e.key === 'Enter') submit(); };
   const submit = () => {
     const g = num(inp.value);
     if (g <= 0) return toast('Enter a quantity');
